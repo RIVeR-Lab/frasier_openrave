@@ -22,6 +22,8 @@
 #include <Eigen/Core>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <iterator>
 
 enum MOVE_STATE{
     PICK,
@@ -65,6 +67,7 @@ public:
     void moveHeadToKnownState(HEAD_STATE state);
     void moveArmToKnownState(ARM_STATE state);
     void moveBase(geometry_msgs::Pose2D& pose);
+    void retractArmBase(trajectory_msgs::JointTrajectory &traj);
 
     void extractArmBaseTraj(trajectory_msgs::JointTrajectory whole_body_traj,
                             trajectory_msgs::JointTrajectory& base_traj,

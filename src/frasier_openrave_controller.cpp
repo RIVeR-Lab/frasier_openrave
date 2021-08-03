@@ -337,6 +337,41 @@ void FRASIERController::moveHeadToKnownState(HEAD_STATE state) {
     head_cli_.sendGoalAndWait(goal, ros::Duration(CONTROLLER_TIMEOUT));
 }
 
+void FRASIERController::retractArmBase(trajectory_msgs::JointTrajectory &traj) {
+    control_msgs::FollowJointTrajectoryGoal base_goal, arm_goal;
+    trajectory_msgs::JointTrajectory base_traj, arm_traj;
+
+
+    /////// BASE TRAJECTORY ///////
+    base_traj.joint_names.push_back("odom_x");
+    base_traj.joint_names.push_back("odom_y");
+    base_traj.joint_names.push_back("odom_t");
+
+    base_traj.points.resize(1);
+
+    base_traj.points[0].positions = {traj.points[0].positions.begin(), traj.points[0].positions.begin()+3};
+    base_traj.points[0].time_from_start = traj.points[0].time_from_start;
+    base_goal.trajectory = base_traj;
+
+    /////// ARM TRAJECTORY ///////
+    arm_traj.joint_names.push_back("arm_lift_joint");
+    arm_traj.joint_names.push_back("arm_flex_joint");
+    arm_traj.joint_names.push_back("arm_roll_joint");
+    arm_traj.joint_names.push_back("wrist_flex_joint");
+    arm_traj.joint_names.push_back("wrist_roll_joint");
+
+    arm_traj.points.resize(1);
+
+    arm_traj.points[0].positions = {traj.points[0].positions.begin()+3, traj.points[0].positions.end()};
+    arm_traj.points[0].time_from_start = traj.points[0].time_from_start;
+    arm_goal.trajectory = arm_traj;
+
+    base_cli_.sendGoal(base_goal);
+    base_cli_.waitForResult(ros::Duration(CONTROLLER_TIMEOUT));
+    arm_cli_.sendGoal(arm_goal);
+    // arm_cli_.waitForResult(ros::Duration(CONTROLLER_TIMEOUT));
+}
+
 void FRASIERController::graspOrRelease(GRIPPER_STATE state) {
     tmc_control_msgs::GripperApplyEffortGoal goal;
 

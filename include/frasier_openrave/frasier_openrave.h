@@ -165,6 +165,7 @@ public:
 
     Grasp generateGraspPose(const std::string &obj_name);
 
+    Grasp generatePlacePose(std::string table_name, OpenRAVE::Vector &eef_rot);
 //    OpenRAVE::Transform generatePlacePose(std::string &obj_name);
 
 //    std::vector<OpenRAVE::Transform> generatePlacePoses();

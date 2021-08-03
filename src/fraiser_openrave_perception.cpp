@@ -234,8 +234,8 @@ void FRASIEROpenRAVE::releaseObject(std::string &obj_name) {
     OpenRAVE::EnvironmentMutex::scoped_lock lockenv(env_->GetMutex());
     OpenRAVE::KinBodyPtr released_object = env_->GetKinBody(obj_name);
     hsr_->Release(released_object);
-    std::string new_name = "released_" + obj_name;
-    released_object->SetName(new_name);
+    // std::string new_name = "released_" + obj_name;
+    // released_object->SetName(new_name);
 }
 
 

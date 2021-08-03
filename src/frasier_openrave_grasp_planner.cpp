@@ -136,14 +136,19 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
 
         if (object_size.y < MAX_FINGER_APERTURE) {
             std::cout << "RAVE: selected side grasp for " << grasp.obj_name << std::endl;
-            grasp.pose.rot = FRONT_EEF_ROT;
+            //generate grasp pose within rave world frame
+            OpenRAVE::Transform tmp_pose(FRONT_EEF_ROT, OpenRAVE::Vector(0,0,0));
+            OpenRAVE::Transform grasp_pose_rave = hsr_pose * tmp_pose; 
+            grasp.pose.rot = grasp_pose_rave.rot;
             grasp.pose.trans.x = object_pose.trans.x - 0.02;
             grasp.pose.trans.y = object_pose.trans.y;
             grasp.pose.trans.z = object_pose.trans.z;
             break;
         } else if (object_size.x < MAX_FINGER_APERTURE) {
             std::cout << "RAVE: selected top grasp for " << grasp.obj_name << std::endl;
-            grasp.pose.rot = FRONT_TOP_EEF_ROT;
+            OpenRAVE::Transform tmp_pose(FRONT_TOP_EEF_ROT, OpenRAVE::Vector(0,0,0));
+            OpenRAVE::Transform grasp_pose_rave = hsr_pose * tmp_pose; 
+            grasp.pose.rot = grasp_pose_rave.rot;
             grasp.pose.trans.x = object_pose.trans.x;
             grasp.pose.trans.y = object_pose.trans.y;
             grasp.pose.trans.z = object_pose.trans.z + object_size[2] + 0.01;
@@ -160,6 +165,26 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
     return grasp;
 
 }
+//Only works when the robot base is controlled by navigation stack
+Grasp FRASIEROpenRAVE::generatePlacePose(std::string table_name, OpenRAVE::Vector &eef_rot) {
+    Grasp release;
+    OpenRAVE::Transform hsr_pose = hsr_->GetLink(base_link_)->GetTransform();
+    OpenRAVE::KinBodyPtr table_body = env_->GetKinBody(table_name);
+    OpenRAVE::Vector table_size = table_body->GetLink("base")->GetGeometry(0)->GetBoxExtents();
+
+    //hardcoded release pose 0.3m+half of the table width in front of robot_base, I don't know why the table size is halved, but
+    //we need to multiply it by 2 to get the correct dimension
+    OpenRAVE::Transform relative_place_pose(eef_rot,
+                                   OpenRAVE::Vector(0.45+table_size.x, 0, 0.25+2*table_size.z));
+    
+    OpenRAVE::Transform rave_place_pose = hsr_pose * relative_place_pose;
+    release.obj_name = "release";
+    release.pose = rave_place_pose;
+
+    return release;
+
+}
+
 
 //OpenRAVE::Transform FRASIEROpenRAVE::generatePlacePose(std::string &obj_name) {
 //    OpenRAVE::Transform place_pose;
