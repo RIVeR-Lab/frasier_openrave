@@ -112,10 +112,14 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
         OpenRAVE::KinBodyPtr grasp_body;
         env_->GetBodies(bodies);
         double closest_distance = std::numeric_limits<double>::max();
+        std::cout << "Number of bodies: " << bodies.size() << std::endl;
         for (const auto body : bodies) {
             std::string body_name = body->GetName();
+            std::cout << "body name: " << body_name << std::endl;
+            if ((body_name.substr(0, 8) == "tabletop") || (body_name.substr(0, 5) == "floor")) {
 
-            if (body_name.substr(0, 8) == "tabletop") {
+                if (body_name == "floor")
+                    continue;
 
                 OpenRAVE::Transform obj_pose = hsr_pose.inverse() * body->GetTransform();
 
@@ -128,6 +132,9 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
             }
 
         }
+
+        std::cout << "Closest body: " << grasp_body->GetName() << std::endl;
+        std::cout << "Closest distance: " << closest_distance << std::endl;
 
         grasp.obj_name = grasp_body->GetName();
 

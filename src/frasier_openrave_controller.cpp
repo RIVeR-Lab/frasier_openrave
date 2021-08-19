@@ -1,4 +1,4 @@
-    #include <frasier_openrave/frasier_openrave_controller.h>
+#include <frasier_openrave/frasier_openrave_controller.h>
 
 
 FRASIERController::FRASIERController(ros::NodeHandle n) : nh_(n),
