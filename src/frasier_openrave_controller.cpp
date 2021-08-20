@@ -294,6 +294,14 @@ void FRASIERController::moveArmToKnownState(ARM_STATE state) {
         arm_traj.points[0].positions[4] = 0.0;
     }
 
+    else if (state == ARM_STATE::GRASP_FLOOR){
+        arm_traj.points[0].positions[0] = 0.05;
+        arm_traj.points[0].positions[1] = -2.60;
+        arm_traj.points[0].positions[2] = 0.0;
+        arm_traj.points[0].positions[3] = 1.00;
+        arm_traj.points[0].positions[4] = 0.0;
+    }
+
 
     arm_traj.points[0].time_from_start = ros::Duration(3.0);
 
@@ -331,6 +339,11 @@ void FRASIERController::moveHeadToKnownState(HEAD_STATE state) {
         std::cout << "CONTROL: moving head towards front table... "  << std::endl;
         goal.trajectory.points[0].positions[0] = 0.0;
         goal.trajectory.points[0].positions[1] = 0.0;
+    }
+    else if (state == HEAD_STATE::LOOK_FLOOR) {
+        std::cout << "CONTROL: moving head to look at floor... "  << std::endl;
+        goal.trajectory.points[0].positions[0] = 0.0;
+        goal.trajectory.points[0].positions[1] = -M_PI / 4;
     }
 
     goal.trajectory.points[0].time_from_start = ros::Duration(2.0);
