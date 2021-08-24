@@ -197,9 +197,9 @@ void FRASIEROpenRAVE::addMeshCollObj(pcl_msgs::PolygonMesh &mesh, std::string &o
 }
 
 
-void FRASIEROpenRAVE::removeCollisionObj(std::string &obj_name) {
+bool FRASIEROpenRAVE::removeCollisionObj(std::string &obj_name) {
     OpenRAVE::EnvironmentMutex::scoped_lock lockenv(env_->GetMutex());
-    bool result = env_->Remove(env_->GetKinBody(obj_name));
+    return env_->RemoveKinBodyByName(obj_name);
 }
 
 void FRASIEROpenRAVE::removeTableObjects() {

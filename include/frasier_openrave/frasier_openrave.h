@@ -185,7 +185,7 @@ public:
     void addCylinderCollObj(OpenRAVE::Vector &size, OpenRAVE::Transform &pose,
                             std::string &obj_name, bool collision = true);
 
-    void removeCollisionObj(std::string &obj_name);
+    bool removeCollisionObj(std::string &obj_name);
 
     void addMeshCollObj(pcl_msgs::PolygonMesh &mesh, std::string &obj_name);
 

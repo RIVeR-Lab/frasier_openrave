@@ -118,7 +118,7 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
             std::cout << "body name: " << body_name << std::endl;
             if ((body_name.substr(0, 8) == "tabletop") || (body_name.substr(0, 5) == "floor")) {
 
-                if (body_name == "floor")
+                if (body_name == "floor" or body_name == "floor_")
                     continue;
 
                 OpenRAVE::Transform obj_pose = hsr_pose.inverse() * body->GetTransform();
