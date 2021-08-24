@@ -140,6 +140,7 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
 
         OpenRAVE::Transform object_pose = grasp_body->GetTransform();
         OpenRAVE::Vector object_size = grasp_body->GetLink("base")->GetGeometry(0)->GetBoxExtents();
+        object_size = object_size * 2;
 
         if (object_size.y < MAX_FINGER_APERTURE) {
             std::cout << "RAVE: selected side grasp for " << grasp.obj_name << std::endl;
@@ -149,8 +150,18 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
             grasp.pose.rot = grasp_pose_rave.rot;
             grasp.pose.trans.x = object_pose.trans.x - 0.02;
             grasp.pose.trans.y = object_pose.trans.y;
-            grasp.pose.trans.z = object_pose.trans.z;
+            std::cout << "Object pose: " << object_pose.trans.z << std::endl;
+            std::cout << "Object size: " << object_size << std::endl;
+            // grasp.pose.trans.z = object_pose.trans.z - 0.05;
+            std::cout << "Possible grasp height locations: " 
+                      << object_pose.trans.z - object_size[2] / 2 << ", "
+                      << object_pose.trans.z - object_size[2] + 0.05 << ", "
+                      << 0.05
+                      << std::endl;
+            grasp.pose.trans.z = std::max(std::max(object_pose.trans.z - object_size[2] / 2, object_pose.trans.z - object_size[2] + 0.05), 0.05);
+            std::cout << "Grasp height selected: " << grasp.pose.trans.z << std::endl;
             break;
+            
         } else if (object_size.x < MAX_FINGER_APERTURE) {
             std::cout << "RAVE: selected top grasp for " << grasp.obj_name << std::endl;
             OpenRAVE::Transform tmp_pose(FRONT_TOP_EEF_ROT, OpenRAVE::Vector(0,0,0));
