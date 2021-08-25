@@ -107,9 +107,9 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
     OpenRAVE::Transform hsr_pose = hsr_->GetLink(base_link_)->GetTransform();
     Grasp grasp;
     while (true) {
-
         std::vector<OpenRAVE::KinBodyPtr> bodies;
         OpenRAVE::KinBodyPtr grasp_body;
+        bool grasp_body_set = false;
         env_->GetBodies(bodies);
         double closest_distance = std::numeric_limits<double>::max();
         std::cout << "Number of bodies: " << bodies.size() << std::endl;
@@ -127,10 +127,15 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
                 if (distance < closest_distance) {
                     grasp_body = body;
                     closest_distance = distance;
-
+                    grasp_body_set = true;
                 }
             }
+        }
 
+        if (!grasp_body_set) {
+            ROS_INFO("No grasp body found");
+            grasp.obj_name = "";
+            return grasp;
         }
 
         std::cout << "Closest body: " << grasp_body->GetName() << std::endl;
@@ -142,6 +147,9 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
         OpenRAVE::Vector object_size = grasp_body->GetLink("base")->GetGeometry(0)->GetBoxExtents();
         object_size = object_size * 2;
 
+        std::cout << "Object pose: " << object_pose.trans.z << std::endl;
+        std::cout << "Object size: " << object_size << std::endl;
+
         if (object_size.y < MAX_FINGER_APERTURE) {
             std::cout << "RAVE: selected side grasp for " << grasp.obj_name << std::endl;
             //generate grasp pose within rave world frame
@@ -150,15 +158,13 @@ Grasp FRASIEROpenRAVE::generateGraspPose() {
             grasp.pose.rot = grasp_pose_rave.rot;
             grasp.pose.trans.x = object_pose.trans.x - 0.02;
             grasp.pose.trans.y = object_pose.trans.y;
-            std::cout << "Object pose: " << object_pose.trans.z << std::endl;
-            std::cout << "Object size: " << object_size << std::endl;
             // grasp.pose.trans.z = object_pose.trans.z - 0.05;
             std::cout << "Possible grasp height locations: " 
                       << object_pose.trans.z - object_size[2] / 2 << ", "
                       << object_pose.trans.z - object_size[2] + 0.05 << ", "
                       << 0.05
                       << std::endl;
-            grasp.pose.trans.z = std::max(std::max(object_pose.trans.z - object_size[2] / 2, object_pose.trans.z - object_size[2] + 0.05), 0.05);
+            grasp.pose.trans.z = std::max(std::max(object_pose.trans.z - object_size[2] / 3, object_pose.trans.z - object_size[2] + 0.05), 0.05);
             std::cout << "Grasp height selected: " << grasp.pose.trans.z << std::endl;
             break;
             
